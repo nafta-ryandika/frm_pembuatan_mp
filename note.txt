@@ -1,0 +1,42 @@
+cek apakah no pko dan no karton serta season tersebut sudah ada belu, jika sudah, cek apakah sudah terscan atau belum
+select nosj,tglsj,barcode,nomp from tblgeoxpko where season=?vseason and nopko_karton=?vnopko_cnt and nopko=?vnopko
+
+ada > delete from tblgeoxpko where season=?vseason and nopko_karton=?vnopko_cnt and nopko=?vnopko
+lanjut > insert data ke tabel Pko
+ins2mysql1="insert into tblgeoxpko(season,nopko_karton,nopko,nokarton,kdneg_tuj,artikel,kdmat,kdwarna,totqty,pko33,pko33s,pko34,pko34s,pko35,pko35s,pko36,pko36s,pko37,pko37s,pko38,pko38s,pko39,pko39s,pko40,pko40s,"
+ins2mysql2="pko41,pko41s,pko42,pko42s,pko43,pko43s,pko44,pko44s) values (?vseason,?vnopko_cnt,?vnopko,?vnokarton,?vneg_tuj,?vartikel,?vmaterial,?vwarna,?vtotqty,?vsize33,?vsize33s,?vsize34,?vsize34s,?vsize35,?vsize35s,"
+ins2mysql3="?vsize36,?vsize36s,?vsize37,?vsize37s,?vsize38,?vsize38s,?vsize39,?vsize39s,?vsize40,?vsize40s,?vsize41,?vsize41s,?vsize42,?vsize42s,?vsize43,?vsize43s,?vsize44,?vsize44s)"
+
+gak ada >
+* masuk ke tabel pko geox
+ins2mysql1="insert into tblgeoxpko(season,nopko_karton,nopko,nokarton,kdneg_tuj,artikel,kdmat,kdwarna,totqty,pko33,pko33s,pko34,pko34s,pko35,pko35s,pko36,pko36s,pko37,pko37s,pko38,pko38s,pko39,pko39s,pko40,pko40s,"
+ins2mysql2="pko41,pko41s,pko42,pko42s,pko43,pko43s,pko44,pko44s) values (?vseason,?vnopko_cnt,?vnopko,?vnokarton,?vneg_tuj,?vartikel,?vmaterial,?vwarna,?vtotqty,?vsize33,?vsize33s,?vsize34,?vsize34s,?vsize35,?vsize35s,"
+ins2mysql3="?vsize36,?vsize36s,?vsize37,?vsize37s,?vsize38,?vsize38s,?vsize39,?vsize39s,?vsize40,?vsize40s,?vsize41,?vsize41s,?vsize42,?vsize42s,?vsize43,?vsize43s,?vsize44,?vsize44s)"
+
+
++++++++++++++++++++++++
+
+* ambil data header packing list
+select * from tblinv_pack_geox where nosj=?vnosj
+
+* ambil data di tabel pko geox
+select * from tblgeoxpko where nosj=?vnosj
+
+INSERT INTO tmpacking (tmno,tmbarcode,tmnopko,tmartikel,tmnocnt,tm33,tm33s,tm34,tm34s,tm35,tm35s,tm36,tm36s,tm37,tm37s,tm38,tm38s,tm39,tm39s,tm40,tm40s,tm41,tm41s,tm42,tm42s,tm43,tm43s,tm44,tm44s,;
+tmkarton,tmqty,tmgross,tmnett) VALUES (vno,vbarcode,vnopko,vartikel+" "+vkdmat+" "+vkdwarna,vnokarton,v33,v33s,v34,v34s,v35,v35s,v36,v36s,v37,v37s,v38,v38s,v39,v39s,v40,v40s,v41,v41s,;
+v42,v42s,v43,v43s,v44,v44s,vkarton,vqty,(vqty * vgross),(vqty * vnetto))
+
+SQLEXEC(mysqlkon,"select nosj from tblinv_pack_geox where nosj=?vnosj","cekpack")
+SELECT cekpack
+IF RECCOUNT() <= 0
+	* simpan di tabel header packing list
+	ins2mysql1="insert into tblinv_pack_geox (nmcust,alm1,alm2,kota,noinv,tglinv,port_loading,term_of_payment,gross,netto,totqty,nosj,access,komp,userby) values "
+	ins2mysql2="(?vnmcust,?valm1,?valm2,?vkota,?vnoinv,?vtglinv,?vport,?vtop,?vgross,?vnetto,?vtotal,?vnosj,now(),?SYS(0),?mname)"
+	SQLEXEC(mysqlkon,ins2mysql1+ins2mysql2)
+ELSE
+	upd2mysql1="update tblinv_pack_geox set nmcust=?vnmcust,alm1=?valm1,alm2=?valm2,kota=?vkota,noinv=?vnoinv,tglinv=?vtglinv,port_loading=?vport,"
+	upd2mysql2="term_of_payment=?vtop,gross=?vgross,netto=?vnetto,totqty=?vtotal,access=now(),komp=?SYS(0),userby=?mname where nosj=?vnosj"
+	SQLEXEC(mysqlkon,upd2mysql1+upd2mysql2)
+ENDIF 
+
+SELECT tmpacking
